@@ -1,10 +1,13 @@
 package org.mtransit.parser.ca_chambly_richelieu_carignan_citcrc_bus;
 
+import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.Utils;
+import org.mtransit.parser.gtfs.data.GCalendar;
+import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
 import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.gtfs.data.GTrip;
@@ -29,12 +32,38 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		new ChamblyRichelieuCarignanCITCRCBusAgencyTools().start(args);
 	}
 
+	private HashSet<String> serviceIds;
 	@Override
 	public void start(String[] args) {
 		System.out.printf("Generating CITCRC bus data...\n");
 		long start = System.currentTimeMillis();
+		this.serviceIds = extractUsefulServiceIds(args, this);
 		super.start(args);
 		System.out.printf("Generating CITCRC bus data... DONE in %s.\n", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+	}
+
+	@Override
+	public boolean excludeCalendar(GCalendar gCalendar) {
+		if (this.serviceIds != null) {
+			return excludeUselessCalendar(gCalendar, this.serviceIds);
+		}
+		return super.excludeCalendar(gCalendar);
+	}
+
+	@Override
+	public boolean excludeCalendarDate(GCalendarDate gCalendarDates) {
+		if (this.serviceIds != null) {
+			return excludeUselessCalendarDate(gCalendarDates, this.serviceIds);
+		}
+		return super.excludeCalendarDate(gCalendarDates);
+	}
+
+	@Override
+	public boolean excludeTrip(GTrip gTrip) {
+		if (this.serviceIds != null) {
+			return excludeUselessTrip(gTrip, serviceIds);
+		}
+		return super.excludeTrip(gTrip);
 	}
 
 	@Override
