@@ -81,7 +81,12 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return MSpec.cleanLabel(routeLongName);
 	}
 
-	private static final String ROUTE_COLOR = "D80C4A";
+	@Override
+	public String getAgencyColor() {
+		return AGENCY_COLOR;
+	}
+
+	private static final String AGENCY_COLOR = "D80C4A";
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
@@ -102,7 +107,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		if ("500".equals(gRoute.route_short_name)) return "666666";
 		if ("600".equals(gRoute.route_short_name)) return "ACAA00";
 		if (gRoute.route_long_name.contains("Taxibus")) return "74797D";
-		return ROUTE_COLOR;
+		return null;
 	}
 
 
