@@ -107,7 +107,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		if ("500".equals(gRoute.route_short_name)) return "666666";
 		if ("600".equals(gRoute.route_short_name)) return "ACAA00";
 		if (gRoute.route_long_name.contains("Taxibus")) return "74797D";
-		return null;
+		return super.getRouteColor(gRoute);
 	}
 
 
