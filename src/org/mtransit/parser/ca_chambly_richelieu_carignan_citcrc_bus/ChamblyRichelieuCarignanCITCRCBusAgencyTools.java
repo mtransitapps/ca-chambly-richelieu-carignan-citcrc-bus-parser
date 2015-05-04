@@ -159,7 +159,13 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	public void setTripHeadsign(MRoute route, MTrip mTrip, GTrip gTrip) {
 		String stationName = cleanTripHeadsign(gTrip.trip_headsign);
 		int directionId = gTrip.direction_id;
-		if (mTrip.getRouteId() == 15l) {
+		if (mTrip.getRouteId() == 14l) {
+			if (directionId == 0) {
+				stationName = AM;
+			} else if (directionId == 1) {
+				stationName = PM;
+			}
+		} else if (mTrip.getRouteId() == 15l) {
 			if (directionId == 0) {
 				stationName = AM;
 			} else if (directionId == 1) {
