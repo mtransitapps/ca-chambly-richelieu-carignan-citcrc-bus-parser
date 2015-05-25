@@ -71,10 +71,21 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return MAgency.ROUTE_TYPE_BUS;
 	}
 
+	private static final Pattern CLEAN_CHAMBLY_LONGIEUIL = Pattern.compile("(chambly[\\s]*-[\\s]*longueuil)", Pattern.CASE_INSENSITIVE);
+	private static final String CLEAN_CHAMBLY_LONGIEUIL_REPLACEMENT = "Chambly - longueuil";
+
+	private static final Pattern CLEAN_P1 = Pattern.compile("[\\s]*\\([\\s]*");
+	private static final String CLEAN_P1_REPLACEMENT = " (";
+	private static final Pattern CLEAN_P2 = Pattern.compile("[\\s]*\\)[\\s]*");
+	private static final String CLEAN_P2_REPLACEMENT = ") ";
+
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
 		String routeLongName = gRoute.route_long_name;
 		routeLongName = MSpec.SAINT.matcher(routeLongName).replaceAll(MSpec.SAINT_REPLACEMENT);
+		routeLongName = CLEAN_CHAMBLY_LONGIEUIL.matcher(routeLongName).replaceAll(CLEAN_CHAMBLY_LONGIEUIL_REPLACEMENT);
+		routeLongName = CLEAN_P1.matcher(routeLongName).replaceAll(CLEAN_P1_REPLACEMENT);
+		routeLongName = CLEAN_P2.matcher(routeLongName).replaceAll(CLEAN_P2_REPLACEMENT);
 		return MSpec.cleanLabel(routeLongName);
 	}
 
