@@ -219,15 +219,25 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return super.cleanStopNameFR(gStopName);
 	}
 
+	private static final String ZERO = "0";
+
 	@Override
 	public String getStopCode(GStop gStop) {
-		if ("0".equals(gStop.stop_code)) {
+		if (ZERO.equals(gStop.stop_code)) {
 			return null;
 		}
 		return super.getStopCode(gStop);
 	}
 
 	private static final Pattern DIGITS = Pattern.compile("[\\d]+");
+
+	private static final String CHB = "CHB";
+	private static final String LON = "LON";
+
+	private static final String A = "A";
+	private static final String B = "B";
+	private static final String C = "C";
+	private static final String D = "D";
 
 	@Override
 	public int getStopId(GStop gStop) {
@@ -240,25 +250,25 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		matcher.find();
 		int digits = Integer.parseInt(matcher.group());
 		int stopId;
-		if (gStop.stop_id.startsWith("LON")) {
+		if (gStop.stop_id.startsWith(LON)) {
 			stopId = 100000;
-		} else if (gStop.stop_id.startsWith("CHB")) {
+		} else if (gStop.stop_id.startsWith(CHB)) {
 			stopId = 200000;
 		} else {
-			System.out.println("Stop doesn't have an ID (start with)! " + gStop);
+			System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
 			System.exit(-1);
 			stopId = -1;
 		}
-		if (gStop.stop_id.endsWith("A")) {
+		if (gStop.stop_id.endsWith(A)) {
 			stopId += 1000;
-		} else if (gStop.stop_id.endsWith("B")) {
+		} else if (gStop.stop_id.endsWith(B)) {
 			stopId += 2000;
-		} else if (gStop.stop_id.endsWith("C")) {
+		} else if (gStop.stop_id.endsWith(C)) {
 			stopId += 3000;
-		} else if (gStop.stop_id.endsWith("D")) {
+		} else if (gStop.stop_id.endsWith(D)) {
 			stopId += 4000;
 		} else {
-			System.out.println("Stop doesn't have an ID (end with)! " + gStop);
+			System.out.printf("\nStop doesn't have an ID (end with)! %s\n", gStop);
 			System.exit(-1);
 		}
 		return stopId + digits;
