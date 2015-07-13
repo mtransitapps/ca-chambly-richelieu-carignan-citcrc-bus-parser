@@ -35,7 +35,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	private HashSet<String> serviceIds;
 	@Override
 	public void start(String[] args) {
-		System.out.printf("\nGenerating CITCRC bus data...\n");
+		System.out.printf("\nGenerating CITCRC bus data...");
 		long start = System.currentTimeMillis();
 		this.serviceIds = extractUsefulServiceIds(args, this);
 		super.start(args);
