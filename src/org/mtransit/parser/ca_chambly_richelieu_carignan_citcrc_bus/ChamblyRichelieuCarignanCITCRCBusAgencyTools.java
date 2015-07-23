@@ -81,7 +81,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public String getRouteLongName(GRoute gRoute) {
-		String routeLongName = gRoute.route_long_name;
+		String routeLongName = gRoute.getRouteLongName();
 		routeLongName = CleanUtils.SAINT.matcher(routeLongName).replaceAll(CleanUtils.SAINT_REPLACEMENT);
 		routeLongName = CLEAN_CHAMBLY_LONGIEUIL.matcher(routeLongName).replaceAll(CLEAN_CHAMBLY_LONGIEUIL_REPLACEMENT);
 		routeLongName = CLEAN_P1.matcher(routeLongName).replaceAll(CLEAN_P1_REPLACEMENT);
@@ -133,24 +133,24 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		if (RSN_10.equals(gRoute.route_short_name)) return COLOR_FDBF4C;
-		if (RSN_11.equals(gRoute.route_short_name)) return COLOR_E5003D;
-		if (RSN_12.equals(gRoute.route_short_name)) return COLOR_81378E;
-		if (RSN_13.equals(gRoute.route_short_name)) return COLOR_FFDD00;
-		if (RSN_14.equals(gRoute.route_short_name)) return COLOR_009486;
-		if (RSN_15.equals(gRoute.route_short_name)) return COLOR_014A99;
-		if (RSN_16.equals(gRoute.route_short_name)) return COLOR_20A74B;
-		if (RSN_20.equals(gRoute.route_short_name)) return COLOR_D50080;
-		if (RSN_300.equals(gRoute.route_short_name)) return COLOR_00B5E2;
-		if (RSN_301.equals(gRoute.route_short_name)) return COLOR_00B5E2;
-		if (RSN_302.equals(gRoute.route_short_name)) return COLOR_00B5E2;
-		if (RSN_303.equals(gRoute.route_short_name)) return COLOR_00B5E2;
-		if (RSN_400.equals(gRoute.route_short_name)) return COLOR_BFD885;
-		if (RSN_401.equals(gRoute.route_short_name)) return COLOR_BFD885;
-		if (RSN_450.equals(gRoute.route_short_name)) return COLOR_EF7B0A;
-		if (RSN_500.equals(gRoute.route_short_name)) return COLOR_666666;
-		if (RSN_600.equals(gRoute.route_short_name)) return COLOR_ACAA00;
-		if (gRoute.route_long_name.contains(TAXIBUS)) return COLOR_74797D;
+		if (RSN_10.equals(gRoute.getRouteShortName())) return COLOR_FDBF4C;
+		if (RSN_11.equals(gRoute.getRouteShortName())) return COLOR_E5003D;
+		if (RSN_12.equals(gRoute.getRouteShortName())) return COLOR_81378E;
+		if (RSN_13.equals(gRoute.getRouteShortName())) return COLOR_FFDD00;
+		if (RSN_14.equals(gRoute.getRouteShortName())) return COLOR_009486;
+		if (RSN_15.equals(gRoute.getRouteShortName())) return COLOR_014A99;
+		if (RSN_16.equals(gRoute.getRouteShortName())) return COLOR_20A74B;
+		if (RSN_20.equals(gRoute.getRouteShortName())) return COLOR_D50080;
+		if (RSN_300.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+		if (RSN_301.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+		if (RSN_302.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+		if (RSN_303.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+		if (RSN_400.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
+		if (RSN_401.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
+		if (RSN_450.equals(gRoute.getRouteShortName())) return COLOR_EF7B0A;
+		if (RSN_500.equals(gRoute.getRouteShortName())) return COLOR_666666;
+		if (RSN_600.equals(gRoute.getRouteShortName())) return COLOR_ACAA00;
+		if (gRoute.getRouteLongName().contains(TAXIBUS)) return COLOR_74797D;
 		System.out.println("Unexpected route color " + gRoute);
 		System.exit(-1);
 		return null;
@@ -158,8 +158,8 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.route_id)) {
-			return Long.parseLong(gRoute.route_short_name);
+		if (!Utils.isDigitsOnly(gRoute.getRouteId())) {
+			return Long.parseLong(gRoute.getRouteShortName());
 		}
 		return super.getRouteId(gRoute);
 	}
@@ -169,8 +169,8 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
-		String stationName = cleanTripHeadsign(gTrip.trip_headsign);
-		int directionId = gTrip.direction_id;
+		String stationName = cleanTripHeadsign(gTrip.getTripHeadsign());
+		int directionId = gTrip.getDirectionId();
 		if (mTrip.getRouteId() == 14l) {
 			if (directionId == 0) {
 				stationName = AM;
@@ -223,7 +223,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public String getStopCode(GStop gStop) {
-		if (ZERO.equals(gStop.stop_code)) {
+		if (ZERO.equals(gStop.getStopCode())) {
 			return null;
 		}
 		return super.getStopCode(gStop);
@@ -246,26 +246,26 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			return Integer.valueOf(stopCode); // using stop code as stop ID
 		}
 		// generating integer stop ID
-		Matcher matcher = DIGITS.matcher(gStop.stop_id);
+		Matcher matcher = DIGITS.matcher(gStop.getStopId());
 		matcher.find();
 		int digits = Integer.parseInt(matcher.group());
 		int stopId;
-		if (gStop.stop_id.startsWith(LON)) {
+		if (gStop.getStopId().startsWith(LON)) {
 			stopId = 100000;
-		} else if (gStop.stop_id.startsWith(CHB)) {
+		} else if (gStop.getStopId().startsWith(CHB)) {
 			stopId = 200000;
 		} else {
 			System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
 			System.exit(-1);
 			stopId = -1;
 		}
-		if (gStop.stop_id.endsWith(A)) {
+		if (gStop.getStopId().endsWith(A)) {
 			stopId += 1000;
-		} else if (gStop.stop_id.endsWith(B)) {
+		} else if (gStop.getStopId().endsWith(B)) {
 			stopId += 2000;
-		} else if (gStop.stop_id.endsWith(C)) {
+		} else if (gStop.getStopId().endsWith(C)) {
 			stopId += 3000;
-		} else if (gStop.stop_id.endsWith(D)) {
+		} else if (gStop.getStopId().endsWith(D)) {
 			stopId += 4000;
 		} else {
 			System.out.printf("\nStop doesn't have an ID (end with)! %s\n", gStop);
