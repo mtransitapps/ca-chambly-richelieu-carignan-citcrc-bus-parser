@@ -254,6 +254,8 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			stopId = 100000;
 		} else if (gStop.getStopId().startsWith(CHB)) {
 			stopId = 200000;
+		} else if (gStop.getStopId().startsWith("SJR")) {
+			stopId = 300000;
 		} else {
 			System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
 			System.exit(-1);
