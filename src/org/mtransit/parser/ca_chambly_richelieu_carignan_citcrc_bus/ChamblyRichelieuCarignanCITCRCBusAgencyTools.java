@@ -1,18 +1,18 @@
 package org.mtransit.parser.ca_chambly_richelieu_carignan_citcrc_bus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.Pair;
 import org.mtransit.parser.SplitUtils;
-import org.mtransit.parser.Utils;
 import org.mtransit.parser.SplitUtils.RouteTripSpec;
+import org.mtransit.parser.Utils;
 import org.mtransit.parser.gtfs.data.GCalendar;
 import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
@@ -21,11 +21,9 @@ import org.mtransit.parser.gtfs.data.GStop;
 import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.gtfs.data.GTripStop;
 import org.mtransit.parser.mt.data.MAgency;
-import org.mtransit.parser.mt.data.MDirectionType;
 import org.mtransit.parser.mt.data.MRoute;
-import org.mtransit.parser.mt.data.MTripStop;
-import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.mt.data.MTrip;
+import org.mtransit.parser.mt.data.MTripStop;
 
 // https://www.amt.qc.ca/en/about/open-data
 // http://www.amt.qc.ca/xdata/citcrc/google_transit.zip
@@ -228,6 +226,11 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 				mTrip.setHeadsignString("Carignan", mTrip.getHeadsignId());
 				return true;
 			}
+		} else if (mTrip.getRouteId() == 4l) {
+			if (mTrip.getHeadsignId() == 1) {
+				mTrip.setHeadsignString("tationnement incitatif Chambly", mTrip.getHeadsignId());
+				return true;
+			}
 		} else if (mTrip.getRouteId() == 5l) {
 			if (mTrip.getHeadsignId() == 1) {
 				mTrip.setHeadsignString("Route 112", mTrip.getHeadsignId());
@@ -315,32 +318,37 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		}
 		// generating integer stop ID
 		Matcher matcher = DIGITS.matcher(gStop.getStopId());
-		matcher.find();
-		int digits = Integer.parseInt(matcher.group());
-		int stopId;
-		if (gStop.getStopId().startsWith(LON)) {
-			stopId = 100000;
-		} else if (gStop.getStopId().startsWith(CHB)) {
-			stopId = 200000;
-		} else if (gStop.getStopId().startsWith("SJR")) {
-			stopId = 300000;
+		if (matcher.find()) {
+			int digits = Integer.parseInt(matcher.group());
+			int stopId;
+			if (gStop.getStopId().startsWith(LON)) {
+				stopId = 100000;
+			} else if (gStop.getStopId().startsWith(CHB)) {
+				stopId = 200000;
+			} else if (gStop.getStopId().startsWith("SJR")) {
+				stopId = 300000;
+			} else {
+				System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
+				System.exit(-1);
+				stopId = -1;
+			}
+			if (gStop.getStopId().endsWith(A)) {
+				stopId += 1000;
+			} else if (gStop.getStopId().endsWith(B)) {
+				stopId += 2000;
+			} else if (gStop.getStopId().endsWith(C)) {
+				stopId += 3000;
+			} else if (gStop.getStopId().endsWith(D)) {
+				stopId += 4000;
+			} else {
+				System.out.printf("\nStop doesn't have an ID (end with)! %s\n", gStop);
+				System.exit(-1);
+			}
+			return stopId + digits;
 		} else {
-			System.out.printf("\nStop doesn't have an ID (start with)! %s\n", gStop);
+			System.out.printf("\nUnexpected stop ID! %s\n", gStop);
 			System.exit(-1);
-			stopId = -1;
+			return -1;
 		}
-		if (gStop.getStopId().endsWith(A)) {
-			stopId += 1000;
-		} else if (gStop.getStopId().endsWith(B)) {
-			stopId += 2000;
-		} else if (gStop.getStopId().endsWith(C)) {
-			stopId += 3000;
-		} else if (gStop.getStopId().endsWith(D)) {
-			stopId += 4000;
-		} else {
-			System.out.printf("\nStop doesn't have an ID (end with)! %s\n", gStop);
-			System.exit(-1);
-		}
-		return stopId + digits;
 	}
 }
