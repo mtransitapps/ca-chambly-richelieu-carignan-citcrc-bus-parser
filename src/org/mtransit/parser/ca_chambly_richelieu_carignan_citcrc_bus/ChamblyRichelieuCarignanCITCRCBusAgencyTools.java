@@ -1,6 +1,7 @@
 package org.mtransit.parser.ca_chambly_richelieu_carignan_citcrc_bus;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,8 +26,8 @@ import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 import org.mtransit.parser.mt.data.MTripStop;
 
-// https://www.amt.qc.ca/en/about/open-data
-// http://www.amt.qc.ca/xdata/citcrc/google_transit.zip
+// https://rtm.quebec/en/about/open-data
+// https://rtm.quebec/xdata/citcrc/google_transit.zip
 public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(String[] args) {
@@ -221,35 +222,61 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
-		if (mTrip.getRouteId() == 3l) {
-			if (mTrip.getHeadsignId() == 0) {
+		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
+		if (mTrip.getRouteId() == 3L) {
+			if (Arrays.asList( //
+					"Stationnement Incitatif", //
+					"Carignan" //
+			).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString("Carignan", mTrip.getHeadsignId());
 				return true;
 			}
-		} else if (mTrip.getRouteId() == 4l) {
-			if (mTrip.getHeadsignId() == 1) {
-				mTrip.setHeadsignString("tationnement incitatif Chambly", mTrip.getHeadsignId());
+		} else if (mTrip.getRouteId() == 4L) {
+			if (Arrays.asList( //
+					"Chemin Bellerive", //
+					"Stationnement Incitatif Chambly" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("Stationnement Incitatif Chambly", mTrip.getHeadsignId());
 				return true;
 			}
-		} else if (mTrip.getRouteId() == 5l) {
-			if (mTrip.getHeadsignId() == 1) {
+		} else if (mTrip.getRouteId() == 5L) {
+			if (Arrays.asList( //
+					"Stationnement Incitatif", //
+					"Route 112" //
+			).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString("Route 112", mTrip.getHeadsignId());
 				return true;
 			}
-		} else if (mTrip.getRouteId() == 14l) {
-			if (mTrip.getHeadsignId() == 0) {
-				mTrip.setHeadsignString("AM", mTrip.getHeadsignId());
+		} else if (mTrip.getRouteId() == 14L) {
+			if (Arrays.asList( //
+					"AM", //
+					"Richelieu-Chambly", //
+					"Chambly" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("AM", mTrip.getHeadsignId()); // Chambly
 				return true;
-			} else if (mTrip.getHeadsignId() == 1) {
-				mTrip.setHeadsignString("PM", mTrip.getHeadsignId());
+			} else if (Arrays.asList( //
+					"PM", //
+					"Richelieu-Chambly", //
+					"Richelieu" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("PM", mTrip.getHeadsignId()); // Richelieu
 				return true;
 			}
-		} else if (mTrip.getRouteId() == 15l) {
-			if (mTrip.getHeadsignId() == 0) {
-				mTrip.setHeadsignString("AM", mTrip.getHeadsignId());
+		} else if (mTrip.getRouteId() == 15L) {
+			if (Arrays.asList( //
+					"AM", //
+					"Marieville-Chambly", //
+					"Chambly" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("AM", mTrip.getHeadsignId()); // Chambly
 				return true;
-			} else if (mTrip.getHeadsignId() == 1) {
-				mTrip.setHeadsignString("PM", mTrip.getHeadsignId());
+			} else if (Arrays.asList( //
+					"PM", //
+					"Marieville-Chambly", //
+					"Marieville" //
+			).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString("PM", mTrip.getHeadsignId()); // Marieville
 				return true;
 			}
 		}
