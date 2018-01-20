@@ -36,12 +36,12 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			args[0] = "input/gtfs.zip";
 			args[1] = "../../mtransitapps/ca-chambly-richelieu-carignan-citcrc-bus-android/res/raw/";
 			args[2] = ""; // files-prefix
-			// args[3] = "false"; // not-V1
 		}
 		new ChamblyRichelieuCarignanCITCRCBusAgencyTools().start(args);
 	}
 
 	private HashSet<String> serviceIds;
+
 	@Override
 	public void start(String[] args) {
 		System.out.printf("\nGenerating CITCRC bus data...");
@@ -73,6 +73,11 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			return excludeUselessTrip(gTrip, this.serviceIds);
 		}
 		return super.excludeTrip(gTrip);
+	}
+
+	@Override
+	public boolean excludeRoute(GRoute gRoute) {
+		return super.excludeRoute(gRoute);
 	}
 
 	@Override
@@ -179,11 +184,10 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		ALL_ROUTE_TRIPS2 = map2;
 	}
 
-
 	@Override
 	public int compareEarly(long routeId, List<MTripStop> list1, List<MTripStop> list2, MTripStop ts1, MTripStop ts2, GStop ts1GStop, GStop ts2GStop) {
 		if (ALL_ROUTE_TRIPS2.containsKey(routeId)) {
-			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
+			return ALL_ROUTE_TRIPS2.get(routeId).compare(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop, this);
 		}
 		return super.compareEarly(routeId, list1, list2, ts1, ts2, ts1GStop, ts2GStop);
 	}
@@ -199,7 +203,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	@Override
 	public Pair<Long[], Integer[]> splitTripStop(MRoute mRoute, GTrip gTrip, GTripStop gTripStop, ArrayList<MTrip> splitTrips, GSpec routeGTFS) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
-			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()));
+			return SplitUtils.splitTripStop(mRoute, gTrip, gTripStop, routeGTFS, ALL_ROUTE_TRIPS2.get(mRoute.getId()), this);
 		}
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
@@ -210,10 +214,12 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			return; // split
 		}
 		String tripHeadsign = cleanTripHeadsign(gTrip.getTripHeadsign());
-		if (mTrip.getRouteId() == 14l) {
-			if (gTrip.getDirectionId() == 1) {
-				if ("Richelieu-Chambly".equalsIgnoreCase(tripHeadsign)) {
-					tripHeadsign = "PM";
+		if (isGoodEnoughAccepted()) {
+			if (mTrip.getRouteId() == 14l) {
+				if (gTrip.getDirectionId() == 1) {
+					if ("Richelieu-Chambly".equalsIgnoreCase(tripHeadsign)) {
+						tripHeadsign = "PM";
+					}
 				}
 			}
 		}
@@ -226,9 +232,9 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		if (mTrip.getRouteId() == 3L) {
 			if (Arrays.asList( //
 					"Stationnement Incitatif", //
-					"Carignan" //
+					"Chambly" //
 			).containsAll(headsignsValues)) {
-				mTrip.setHeadsignString("Carignan", mTrip.getHeadsignId());
+				mTrip.setHeadsignString("Chambly", mTrip.getHeadsignId());
 				return true;
 			}
 		} else if (mTrip.getRouteId() == 4L) {
@@ -343,7 +349,6 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		if (stopCode != null && stopCode.length() > 0) {
 			return Integer.valueOf(stopCode); // using stop code as stop ID
 		}
-		// generating integer stop ID
 		Matcher matcher = DIGITS.matcher(gStop.getStopId());
 		if (matcher.find()) {
 			int digits = Integer.parseInt(matcher.group());
