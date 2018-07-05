@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
 import org.mtransit.parser.CleanUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.Pair;
@@ -103,7 +104,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return CleanUtils.cleanLabel(routeLongName);
 	}
 
-	private static final String AGENCY_COLOR = "D80C4A";
+	private static final String AGENCY_COLOR = "1F1F1F"; // DARK GRAY (from GTFS)
 
 	@Override
 	public String getAgencyColor() {
@@ -147,27 +148,30 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public String getRouteColor(GRoute gRoute) {
-		if (RSN_10.equals(gRoute.getRouteShortName())) return COLOR_FDBF4C;
-		if (RSN_11.equals(gRoute.getRouteShortName())) return COLOR_E5003D;
-		if (RSN_12.equals(gRoute.getRouteShortName())) return COLOR_81378E;
-		if (RSN_13.equals(gRoute.getRouteShortName())) return COLOR_FFDD00;
-		if (RSN_14.equals(gRoute.getRouteShortName())) return COLOR_009486;
-		if (RSN_15.equals(gRoute.getRouteShortName())) return COLOR_014A99;
-		if (RSN_16.equals(gRoute.getRouteShortName())) return COLOR_20A74B;
-		if (RSN_20.equals(gRoute.getRouteShortName())) return COLOR_D50080;
-		if (RSN_300.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-		if (RSN_301.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-		if (RSN_302.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-		if (RSN_303.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-		if (RSN_400.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
-		if (RSN_401.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
-		if (RSN_450.equals(gRoute.getRouteShortName())) return COLOR_EF7B0A;
-		if (RSN_500.equals(gRoute.getRouteShortName())) return COLOR_666666;
-		if (RSN_600.equals(gRoute.getRouteShortName())) return COLOR_ACAA00;
-		if (gRoute.getRouteLongName().contains(TAXIBUS)) return COLOR_74797D;
-		System.out.println("Unexpected route color " + gRoute);
-		System.exit(-1);
-		return null;
+		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
+			if (RSN_10.equals(gRoute.getRouteShortName())) return COLOR_FDBF4C;
+			if (RSN_11.equals(gRoute.getRouteShortName())) return COLOR_E5003D;
+			if (RSN_12.equals(gRoute.getRouteShortName())) return COLOR_81378E;
+			if (RSN_13.equals(gRoute.getRouteShortName())) return COLOR_FFDD00;
+			if (RSN_14.equals(gRoute.getRouteShortName())) return COLOR_009486;
+			if (RSN_15.equals(gRoute.getRouteShortName())) return COLOR_014A99;
+			if (RSN_16.equals(gRoute.getRouteShortName())) return COLOR_20A74B;
+			if (RSN_20.equals(gRoute.getRouteShortName())) return COLOR_D50080;
+			if (RSN_300.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+			if (RSN_301.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+			if (RSN_302.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+			if (RSN_303.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
+			if (RSN_400.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
+			if (RSN_401.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
+			if (RSN_450.equals(gRoute.getRouteShortName())) return COLOR_EF7B0A;
+			if (RSN_500.equals(gRoute.getRouteShortName())) return COLOR_666666;
+			if (RSN_600.equals(gRoute.getRouteShortName())) return COLOR_ACAA00;
+			if (gRoute.getRouteLongName().contains(TAXIBUS)) return COLOR_74797D;
+			System.out.println("Unexpected route color " + gRoute);
+			System.exit(-1);
+			return null;
+		}
+		return super.getRouteColor(gRoute);
 	}
 
 	@Override
