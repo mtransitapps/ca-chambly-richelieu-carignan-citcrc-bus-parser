@@ -179,10 +179,23 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return super.getRouteColor(gRoute);
 	}
 
+	private static final String T = "T";
+
+	private static final long RID_STARTS_WITH_T = 20_000L;
+
 	@Override
 	public long getRouteId(GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.getRouteId())) {
-			return Long.parseLong(gRoute.getRouteShortName());
+		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+			Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+			if (matcher.find()) {
+				int digits = Integer.parseInt(matcher.group());
+				if (gRoute.getRouteShortName().startsWith(T)) {
+					return RID_STARTS_WITH_T + digits;
+				}
+			}
+			System.out.printf("\nUnexpected route ID for %s!\n", gRoute);
+			System.exit(-1);
+			return -1L;
 		}
 		return super.getRouteId(gRoute);
 	}
@@ -217,6 +230,8 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return super.splitTripStop(mRoute, gTrip, gTripStop, splitTrips, routeGTFS);
 	}
 
+	private static final String STATIONNEMENT_INCITATIF_SHORT = "Stat Incitatif";
+
 	@Override
 	public void setTripHeadsign(MRoute mRoute, MTrip mTrip, GTrip gTrip, GSpec gtfs) {
 		if (ALL_ROUTE_TRIPS2.containsKey(mRoute.getId())) {
@@ -224,7 +239,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		}
 		String tripHeadsign = cleanTripHeadsign(gTrip.getTripHeadsign());
 		if (isGoodEnoughAccepted()) {
-			if (mTrip.getRouteId() == 14l) {
+			if (mTrip.getRouteId() == 14L) {
 				if (gTrip.getDirectionId() == 1) {
 					if ("Richelieu-Chambly".equalsIgnoreCase(tripHeadsign)) {
 						tripHeadsign = "PM";
@@ -238,25 +253,25 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	@Override
 	public boolean mergeHeadsign(MTrip mTrip, MTrip mTripToMerge) {
 		List<String> headsignsValues = Arrays.asList(mTrip.getHeadsignValue(), mTripToMerge.getHeadsignValue());
-		if (mTrip.getRouteId() == 3L) {
+		if (mTrip.getRouteId() == 3L + RID_STARTS_WITH_T) { // T3
 			if (Arrays.asList( //
-					"Stationnement Incitatif", //
+					STATIONNEMENT_INCITATIF_SHORT, //
 					"Chambly" //
 			).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString("Chambly", mTrip.getHeadsignId());
 				return true;
 			}
-		} else if (mTrip.getRouteId() == 4L) {
+		} else if (mTrip.getRouteId() == 4L + RID_STARTS_WITH_T) { // T4
 			if (Arrays.asList( //
 					"Chemin Bellerive", //
-					"Stationnement Incitatif Chambly" //
-			).containsAll(headsignsValues)) {
-				mTrip.setHeadsignString("Stationnement Incitatif Chambly", mTrip.getHeadsignId());
+					STATIONNEMENT_INCITATIF_SHORT //
+					).containsAll(headsignsValues)) {
+				mTrip.setHeadsignString(STATIONNEMENT_INCITATIF_SHORT, mTrip.getHeadsignId());
 				return true;
 			}
-		} else if (mTrip.getRouteId() == 5L) {
+		} else if (mTrip.getRouteId() == 5L + RID_STARTS_WITH_T) { // T5
 			if (Arrays.asList( //
-					"Stationnement Incitatif", //
+					STATIONNEMENT_INCITATIF_SHORT, //
 					"Route 112" //
 			).containsAll(headsignsValues)) {
 				mTrip.setHeadsignString("Route 112", mTrip.getHeadsignId());
@@ -306,6 +321,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	@Override
 	public String cleanTripHeadsign(String tripHeadsign) {
 		tripHeadsign = DIRECTION.matcher(tripHeadsign).replaceAll(DIRECTION_REPLACEMENT);
+		tripHeadsign = CleanUtils.cleanStreetTypesFRCA(tripHeadsign);
 		return CleanUtils.cleanLabelFR(tripHeadsign);
 	}
 
