@@ -197,7 +197,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			System.exit(-1);
 			return -1L;
 		}
-		return super.getRouteId(gRoute);
+		return Long.parseLong(gRoute.getRouteShortName());
 	}
 
 	private static HashMap<Long, RouteTripSpec> ALL_ROUTE_TRIPS2;
