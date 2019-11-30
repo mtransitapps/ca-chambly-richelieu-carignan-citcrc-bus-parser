@@ -238,12 +238,10 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			return; // split
 		}
 		String tripHeadsign = cleanTripHeadsign(gTrip.getTripHeadsign());
-		if (isGoodEnoughAccepted()) {
-			if (mTrip.getRouteId() == 14L) {
-				if (gTrip.getDirectionId() == 1) {
-					if ("Richelieu-Chambly".equalsIgnoreCase(tripHeadsign)) {
-						tripHeadsign = "PM";
-					}
+		if (mTrip.getRouteId() == 14L) {
+			if (gTrip.getDirectionId() == 1) {
+				if ("Richelieu-Chambly".equalsIgnoreCase(tripHeadsign)) {
+					tripHeadsign = "PM";
 				}
 			}
 		}
