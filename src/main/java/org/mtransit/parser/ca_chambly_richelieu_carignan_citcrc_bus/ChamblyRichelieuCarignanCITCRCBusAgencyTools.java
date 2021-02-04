@@ -1,9 +1,11 @@
 package org.mtransit.parser.ca_chambly_richelieu_carignan_citcrc_bus;
 
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.mtransit.parser.CleanUtils;
+import org.mtransit.commons.CharUtils;
+import org.mtransit.commons.CleanUtils;
+import org.mtransit.commons.RegexUtils;
+import org.mtransit.commons.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
 import org.mtransit.parser.Utils;
@@ -18,10 +20,12 @@ import org.mtransit.parser.mt.data.MRoute;
 import org.mtransit.parser.mt.data.MTrip;
 
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.mtransit.parser.Constants.EMPTY;
+import static org.mtransit.parser.Constants.SPACE_;
 
 // https://exo.quebec/en/about/open-data
 // https://exo.quebec/xdata/citcrc/google_transit.zip
@@ -168,7 +172,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@Override
 	public long getRouteId(@NotNull GRoute gRoute) {
-		if (!Utils.isDigitsOnly(gRoute.getRouteShortName())) {
+		if (!CharUtils.isDigitsOnly(gRoute.getRouteShortName())) {
 			Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 			if (matcher.find()) {
 				int digits = Integer.parseInt(matcher.group());
@@ -201,10 +205,19 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	private static final Pattern DIRECTION_ = Pattern.compile("(direction )", Pattern.CASE_INSENSITIVE);
 
+	private static final Pattern EXPRESS_ = CleanUtils.cleanWordsFR("express");
+
+	private static final Pattern _DASH_ = Pattern.compile("( - )");
+	private static final String _DASH_REPLACEMENT = "<>"; // form<>to
+
 	@NotNull
 	@Override
 	public String cleanTripHeadsign(@NotNull String tripHeadsign) {
+		tripHeadsign = _DASH_.matcher(tripHeadsign).replaceAll(_DASH_REPLACEMENT); // from - to => form<>to
+		tripHeadsign = EXPRESS_.matcher(tripHeadsign).replaceAll(EMPTY);
 		tripHeadsign = DIRECTION_.matcher(tripHeadsign).replaceAll(EMPTY);
+		tripHeadsign = DEVANT_.matcher(tripHeadsign).replaceAll(EMPTY);
+		tripHeadsign = CleanUtils.cleanBounds(Locale.FRENCH, tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypesFRCA(tripHeadsign);
 		return CleanUtils.cleanLabelFR(tripHeadsign);
 	}
@@ -221,15 +234,17 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	private static final Pattern[] SPACE_FACES = new Pattern[]{SPACE_FACE_A, SPACE_WITH_FACE_AU, SPACE_WITH_FACE};
 
-	private static final Pattern AVENUE = Pattern.compile("( avenue)", Pattern.CASE_INSENSITIVE);
-	private static final String AVENUE_REPLACEMENT = " av.";
+	private static final Pattern DEVANT_ = CleanUtils.cleanWordsFR("devant");
 
 	@NotNull
 	@Override
 	public String cleanStopName(@NotNull String gStopName) {
-		gStopName = AVENUE.matcher(gStopName).replaceAll(AVENUE_REPLACEMENT);
-		gStopName = Utils.replaceAllNN(gStopName, START_WITH_FACES, CleanUtils.SPACE);
-		gStopName = Utils.replaceAllNN(gStopName, SPACE_FACES, CleanUtils.SPACE);
+		gStopName = _DASH_.matcher(gStopName).replaceAll(SPACE_);
+		gStopName = DEVANT_.matcher(gStopName).replaceAll(EMPTY);
+		gStopName = RegexUtils.replaceAllNN(gStopName, START_WITH_FACES, CleanUtils.SPACE);
+		gStopName = RegexUtils.replaceAllNN(gStopName, SPACE_FACES, CleanUtils.SPACE);
+		gStopName = CleanUtils.cleanBounds(Locale.FRENCH, gStopName);
+		gStopName = CleanUtils.cleanStreetTypesFRCA(gStopName);
 		return CleanUtils.cleanLabelFR(gStopName);
 	}
 
@@ -267,22 +282,22 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 			int digits = Integer.parseInt(matcher.group());
 			int stopId;
 			if (stopId1.startsWith(LON)) {
-				stopId = 100000;
+				stopId = 100_000;
 			} else if (stopId1.startsWith(CHB)) {
-				stopId = 200000;
+				stopId = 200_000;
 			} else if (stopId1.startsWith("SJR")) {
-				stopId = 300000;
+				stopId = 300_000;
 			} else {
 				throw new MTLog.Fatal("Stop doesn't have an ID (start with)! %s", gStop);
 			}
 			if (stopId1.endsWith(A)) {
-				stopId += 1000;
+				stopId += 1_000;
 			} else if (stopId1.endsWith(B)) {
-				stopId += 2000;
+				stopId += 2_000;
 			} else if (stopId1.endsWith(C)) {
-				stopId += 3000;
+				stopId += 3_000;
 			} else if (stopId1.endsWith(D)) {
-				stopId += 4000;
+				stopId += 4_000;
 			} else {
 				throw new MTLog.Fatal("Stop doesn't have an ID (end with)! %s", gStop);
 			}
