@@ -1,25 +1,15 @@
 package org.mtransit.parser.ca_chambly_richelieu_carignan_citcrc_bus;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.mtransit.commons.CharUtils;
 import org.mtransit.commons.CleanUtils;
 import org.mtransit.commons.RegexUtils;
-import org.mtransit.commons.StringUtils;
 import org.mtransit.parser.DefaultAgencyTools;
 import org.mtransit.parser.MTLog;
-import org.mtransit.parser.Utils;
-import org.mtransit.parser.gtfs.data.GCalendar;
-import org.mtransit.parser.gtfs.data.GCalendarDate;
 import org.mtransit.parser.gtfs.data.GRoute;
-import org.mtransit.parser.gtfs.data.GSpec;
 import org.mtransit.parser.gtfs.data.GStop;
-import org.mtransit.parser.gtfs.data.GTrip;
 import org.mtransit.parser.mt.data.MAgency;
-import org.mtransit.parser.mt.data.MRoute;
-import org.mtransit.parser.mt.data.MTrip;
 
-import java.util.HashSet;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,55 +21,19 @@ import static org.mtransit.parser.Constants.SPACE_;
 // https://exo.quebec/xdata/citcrc/google_transit.zip
 public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyTools {
 
-	public static void main(@Nullable String[] args) {
-		if (args == null || args.length == 0) {
-			args = new String[3];
-			args[0] = "input/gtfs.zip";
-			args[1] = "../../mtransitapps/ca-chambly-richelieu-carignan-citcrc-bus-android/res/raw/";
-			args[2] = ""; // files-prefix
-		}
+	public static void main(@NotNull String[] args) {
 		new ChamblyRichelieuCarignanCITCRCBusAgencyTools().start(args);
 	}
 
-	@Nullable
-	private HashSet<Integer> serviceIdInts;
-
 	@Override
-	public void start(@NotNull String[] args) {
-		MTLog.log("Generating CITCRC bus data...");
-		long start = System.currentTimeMillis();
-		this.serviceIdInts = extractUsefulServiceIdInts(args, this, true);
-		super.start(args);
-		MTLog.log("Generating CITCRC bus data... DONE in %s.", Utils.getPrettyDuration(System.currentTimeMillis() - start));
+	public boolean defaultExcludeEnabled() {
+		return true;
 	}
 
+	@NotNull
 	@Override
-	public boolean excludingAll() {
-		return this.serviceIdInts != null && this.serviceIdInts.isEmpty();
-	}
-
-	@Override
-	public boolean excludeCalendar(@NotNull GCalendar gCalendar) {
-		if (this.serviceIdInts != null) {
-			return excludeUselessCalendarInt(gCalendar, this.serviceIdInts);
-		}
-		return super.excludeCalendar(gCalendar);
-	}
-
-	@Override
-	public boolean excludeCalendarDate(@NotNull GCalendarDate gCalendarDates) {
-		if (this.serviceIdInts != null) {
-			return excludeUselessCalendarDateInt(gCalendarDates, this.serviceIdInts);
-		}
-		return super.excludeCalendarDate(gCalendarDates);
-	}
-
-	@Override
-	public boolean excludeTrip(@NotNull GTrip gTrip) {
-		if (this.serviceIdInts != null) {
-			return excludeUselessTripInt(gTrip, this.serviceIdInts);
-		}
-		return super.excludeTrip(gTrip);
+	public String getAgencyName() {
+		return "exo CRC";
 	}
 
 	@NotNull
@@ -90,8 +44,7 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 
 	@NotNull
 	@Override
-	public String getRouteLongName(@NotNull GRoute gRoute) {
-		String routeLongName = gRoute.getRouteLongNameOrDefault();
+	public String cleanRouteLongName(@NotNull String routeLongName) {
 		routeLongName = CleanUtils.cleanLabelFR(routeLongName);
 		return CleanUtils.cleanLabel(routeLongName);
 	}
@@ -104,68 +57,6 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 		return AGENCY_COLOR;
 	}
 
-	private static final String RSN_10 = "10";
-	private static final String RSN_11 = "11";
-	private static final String RSN_12 = "12";
-	private static final String RSN_13 = "13";
-	private static final String RSN_14 = "14";
-	private static final String RSN_15 = "15";
-	private static final String RSN_16 = "16";
-	private static final String RSN_20 = "20";
-	private static final String RSN_300 = "300";
-	private static final String RSN_301 = "301";
-	private static final String RSN_302 = "302";
-	private static final String RSN_303 = "303";
-	private static final String RSN_400 = "400";
-	private static final String RSN_401 = "401";
-	private static final String RSN_450 = "450";
-	private static final String RSN_500 = "500";
-	private static final String RSN_600 = "600";
-
-	private static final String COLOR_74797D = "74797D";
-	private static final String COLOR_ACAA00 = "ACAA00";
-	private static final String COLOR_666666 = "666666";
-	private static final String COLOR_EF7B0A = "EF7B0A";
-	private static final String COLOR_BFD885 = "BFD885";
-	private static final String COLOR_00B5E2 = "00B5E2";
-	private static final String COLOR_D50080 = "D50080";
-	private static final String COLOR_20A74B = "20A74B";
-	private static final String COLOR_014A99 = "014A99";
-	private static final String COLOR_009486 = "009486";
-	private static final String COLOR_FFDD00 = "FFDD00";
-	private static final String COLOR_81378E = "81378E";
-	private static final String COLOR_E5003D = "E5003D";
-	private static final String COLOR_FDBF4C = "FDBF4C";
-
-	private static final String TAXIBUS = "Taxibus";
-
-	@Nullable
-	@Override
-	public String getRouteColor(@NotNull GRoute gRoute) {
-		if (StringUtils.isEmpty(gRoute.getRouteColor())) {
-			if (RSN_10.equals(gRoute.getRouteShortName())) return COLOR_FDBF4C;
-			if (RSN_11.equals(gRoute.getRouteShortName())) return COLOR_E5003D;
-			if (RSN_12.equals(gRoute.getRouteShortName())) return COLOR_81378E;
-			if (RSN_13.equals(gRoute.getRouteShortName())) return COLOR_FFDD00;
-			if (RSN_14.equals(gRoute.getRouteShortName())) return COLOR_009486;
-			if (RSN_15.equals(gRoute.getRouteShortName())) return COLOR_014A99;
-			if (RSN_16.equals(gRoute.getRouteShortName())) return COLOR_20A74B;
-			if (RSN_20.equals(gRoute.getRouteShortName())) return COLOR_D50080;
-			if (RSN_300.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-			if (RSN_301.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-			if (RSN_302.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-			if (RSN_303.equals(gRoute.getRouteShortName())) return COLOR_00B5E2;
-			if (RSN_400.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
-			if (RSN_401.equals(gRoute.getRouteShortName())) return COLOR_BFD885;
-			if (RSN_450.equals(gRoute.getRouteShortName())) return COLOR_EF7B0A;
-			if (RSN_500.equals(gRoute.getRouteShortName())) return COLOR_666666;
-			if (RSN_600.equals(gRoute.getRouteShortName())) return COLOR_ACAA00;
-			if (gRoute.getRouteLongNameOrDefault().contains(TAXIBUS)) return COLOR_74797D;
-			throw new MTLog.Fatal("Unexpected route color for %s!", gRoute);
-		}
-		return super.getRouteColor(gRoute);
-	}
-
 	private static final String T = "T";
 
 	private static final long RID_STARTS_WITH_T = 20_000L;
@@ -173,9 +64,9 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	@Override
 	public long getRouteId(@NotNull GRoute gRoute) {
 		if (!CharUtils.isDigitsOnly(gRoute.getRouteShortName())) {
-			Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
+			final Matcher matcher = DIGITS.matcher(gRoute.getRouteShortName());
 			if (matcher.find()) {
-				int digits = Integer.parseInt(matcher.group());
+				final int digits = Integer.parseInt(matcher.group());
 				if (gRoute.getRouteShortName().startsWith(T)) {
 					return RID_STARTS_WITH_T + digits;
 				}
@@ -186,24 +77,9 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	}
 
 	@Override
-	public void setTripHeadsign(@NotNull MRoute mRoute, @NotNull MTrip mTrip, @NotNull GTrip gTrip, @NotNull GSpec gtfs) {
-		mTrip.setHeadsignString(
-				cleanTripHeadsign(gTrip.getTripHeadsignOrDefault()),
-				gTrip.getDirectionIdOrDefault()
-		);
-	}
-
-	@Override
 	public boolean directionFinderEnabled() {
 		return true;
 	}
-
-	@Override
-	public boolean mergeHeadsign(@NotNull MTrip mTrip, @NotNull MTrip mTripToMerge) {
-		throw new MTLog.Fatal("Unexpected trips to merge %s & %s!", mTrip, mTripToMerge);
-	}
-
-	private static final Pattern DIRECTION_ = Pattern.compile("(direction )", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern EXPRESS_ = CleanUtils.cleanWordsFR("express");
 
@@ -214,8 +90,9 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	@Override
 	public String cleanTripHeadsign(@NotNull String tripHeadsign) {
 		tripHeadsign = _DASH_.matcher(tripHeadsign).replaceAll(_DASH_REPLACEMENT); // from - to => form<>to
+		tripHeadsign = CleanUtils.keepToFR(tripHeadsign);
+		tripHeadsign = CleanUtils.removeVia(tripHeadsign);
 		tripHeadsign = EXPRESS_.matcher(tripHeadsign).replaceAll(EMPTY);
-		tripHeadsign = DIRECTION_.matcher(tripHeadsign).replaceAll(EMPTY);
 		tripHeadsign = DEVANT_.matcher(tripHeadsign).replaceAll(EMPTY);
 		tripHeadsign = CleanUtils.cleanBounds(Locale.FRENCH, tripHeadsign);
 		tripHeadsign = CleanUtils.cleanStreetTypesFRCA(tripHeadsign);
