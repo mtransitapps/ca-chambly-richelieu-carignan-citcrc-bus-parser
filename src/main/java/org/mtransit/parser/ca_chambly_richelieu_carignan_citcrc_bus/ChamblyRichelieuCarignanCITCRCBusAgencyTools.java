@@ -18,7 +18,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 // https://exo.quebec/en/about/open-data
-// https://exo.quebec/xdata/citcrc/google_transit.zip
 public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyTools {
 
 	public static void main(@NotNull String[] args) {
@@ -73,6 +72,14 @@ public class ChamblyRichelieuCarignanCITCRCBusAgencyTools extends DefaultAgencyT
 	@Override
 	public boolean directionFinderEnabled() {
 		return true;
+	}
+
+	@Override
+	public boolean allowNonDescriptiveHeadSigns(long routeId) {
+		if (routeId == 107L) {
+			return true; // circle CW VS CCW
+		}
+		return super.allowNonDescriptiveHeadSigns(routeId);
 	}
 
 	private static final Pattern EXPRESS_ = CleanUtils.cleanWordsFR("express");
